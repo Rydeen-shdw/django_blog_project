@@ -1,10 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_http_methods
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from config import settings
+from accounts import forms, email_sender
 
-from accounts import forms
+User = get_user_model()
 
 
 @require_http_methods(["GET", "POST"])
@@ -47,5 +55,52 @@ def logout_view(request):
     return redirect('accounts:login')
 
 
+@require_http_methods(["GET", "POST"])
+def registration_view(request):
+
+    if request.user.is_authenticated:
+        messages.info(request, 'You are already register.')
+        return redirect('accounts:test')
+
+    if request.method == 'POST':
+        form = forms.UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(
+                form.cleaned_data['password'])
+            user.is_active = False
+            user.save()
+            to_email = form.cleaned_data.get('email')
+            mail_subject = 'Account Activation'
+            template_name = "email_confirmation"
+
+            email = email_sender.send_email(request,
+                                            user=user,
+                                            subject=mail_subject,
+                                            to_email=to_email,
+                                            template_name=template_name)
+            email.send()
+            return redirect('accounts:test')
+    else:
+        form = forms.UserRegistrationForm()
+    return render(request, 'accounts/registration.html', {'form': form})
+
+
 def test_view(request):
     return render(request, 'home.html')
+
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return redirect("home")
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return redirect('accounts:test')
+    else:
+        error_message = 'Activation link is invalid!'
+        return HttpResponse(error_message)

@@ -18,8 +18,13 @@
       </form>
 
       <div class="text-end">
-        <button type="button" class="btn btn-outline-light me-2">Login</button>
-        <button type="button" class="btn btn-warning">Sign-up</button>
+        {% if user.is_authenticated %}
+        Hi {{ user.username }}!
+        <button type="button" class="btn btn-warning"><a href="{% url 'accounts:logout' %}">Log Out</a></button>
+        {% else %}
+        <button type="button" class="btn btn-outline-light me-2"><a href="{% url 'accounts:login' %}">Login</a></button>
+        <button type="button" class="btn btn-warning"><a href="{% url 'accounts:registration' %}">Registration</a></button>
+        {% endif %}
       </div>
     </div>
   </div>
