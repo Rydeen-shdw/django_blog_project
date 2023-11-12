@@ -62,3 +62,5 @@ class Profile(models.Model):
         if not self.avatar:
             self.create_gravatar()
         super().save(*args, **kwargs)
+
+
