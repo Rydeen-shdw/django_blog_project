@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.views.decorators.http import require_http_methods
 from django.utils.http import urlsafe_base64_decode
-from accounts import forms, email_sender, tokens
+from accounts import forms, tokens, email_sender
 
 User = get_user_model()
 
