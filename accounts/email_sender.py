@@ -22,7 +22,3 @@ def send_activation_mail(request, user, to_email):
         messages.success(request, f'{user}, activation link send in your E-mail')
     else:
         messages.error(request, 'E-mail not send')
-
-
-
-

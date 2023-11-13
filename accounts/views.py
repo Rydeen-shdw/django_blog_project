@@ -79,9 +79,9 @@ def test_view(request):
     return render(request, 'home.html')
 
 
-def activate(request, uidb64, token):
+def activate(request, uid64, token):
     try:
-        uid = urlsafe_base64_decode(uidb64).decode()
+        uid = urlsafe_base64_decode(uid64).decode()
         user = User.objects.get(pk=uid)
     except(TypeError, ValueError, OverflowError, User.DoesNotExist):
         user = None
