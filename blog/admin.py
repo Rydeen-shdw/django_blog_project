@@ -29,7 +29,7 @@ class PostAdmin(admin.ModelAdmin):
         'status',
         'publish',
         'created',
-        ('author', admin.RelatedOnlyFieldListFilter,),    )
+        ('author', admin.RelatedOnlyFieldListFilter,),)
     search_fields = ('title', 'author__username',)
     fieldsets = (
         (None, {'fields': ('title', 'slug', 'author', 'category')}),
@@ -38,7 +38,7 @@ class PostAdmin(admin.ModelAdmin):
         ('Image', {'fields': ('image_url',)}),
         ('Tags', {'fields': ('tags',)}),
     )
-    ordering = ('status', '-created',)
+    ordering = ('-status', '-created',)
     actions = ["publish", 'cancel_publication']
 
     @admin.action(description="Publish")
