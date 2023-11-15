@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
-
 
 User = get_user_model()
 
@@ -17,18 +15,22 @@ class LoginForm(forms.Form):
     )
 
 
-class UserRegistrationForm(forms.ModelForm):
-    password = forms.CharField(label='Password',
-                               widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Repeat password',
-                                widget=forms.PasswordInput)
-
+class RegisterForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(),
+            'email': forms.EmailInput(),
+            'first_name': forms.TextInput(),
+            'last_name': forms.TextInput(),
+            'password1': forms.PasswordInput(),
+            'password2': forms.PasswordInput(),
+        }
 
-    def clean_password2(self):
-        clean_data = self.cleaned_data
-        if clean_data['password'] != clean_data['password2']:
-            raise forms.ValidationError('Passwords don\'t match.')
-        return clean_data['password2']
+    # def __init__(self, *args, **kwargs):
+    #     super(RegisterForm, self).__init__(*args, **kwargs)
+    #     for field_name, field in self.fields.items():
+    #         field.widget.attrs.update({'class': 'form-control'})
+    #
+    #     self.fields['username'].widget.attrs.update({'placeholder': 'Enter your username'})
