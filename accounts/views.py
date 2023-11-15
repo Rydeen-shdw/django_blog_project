@@ -30,7 +30,7 @@ def register_view(request):
         return render(request, 'accounts/register.html', {'form': form})
 
     form = forms.RegisterForm()
-    return render(request, 'accounts/registration.html.html', {'form': form})
+    return render(request, 'accounts/registration.html', {'form': form})
 
 
 @require_http_methods(["GET"])
