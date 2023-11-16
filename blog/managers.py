@@ -1,8 +1,8 @@
 from django.db import models
 
 
-class PublishedManager(models.Manager):
+class PostPublishedManager(models.Manager):
     def get_queryset(self):
-        return (super(PublishedManager, self)
+        return (super(PostPublishedManager, self)
                 .get_queryset()
                 .filter(status='published'))
