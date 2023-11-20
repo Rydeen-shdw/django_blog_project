@@ -27,10 +27,10 @@ def register_view(request):
             user_token = models.ActivateToken.objects.create(user=user)
             send_activation_email(user, user_token, settings.EMAIL_HOST_USER, request)
             return redirect('accounts:login')
-        return render(request, 'accounts/registration.html', {'form': form})
+        return render(request, 'accounts/register.html', {'form': form})
 
     form = forms.RegisterForm()
-    return render(request, 'accounts/registration.html', {'form': form})
+    return render(request, 'accounts/register.html', {'form': form})
 
 
 @require_http_methods(["GET"])
@@ -48,10 +48,10 @@ def activate_account_view(request, username, token):
         user.save()
 
         messages.success(request, 'Activation complete.')
-        return redirect('blog:post_list')
+        return redirect('accounts:profile_edit')
 
     messages.error(request, 'Token expired')
-    return redirect('blog:post_list')
+    return redirect('accounts:test')
 
 
 @require_http_methods(["GET", "POST"])
@@ -92,7 +92,3 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('accounts:login')
-
-
-def test_view(request):
-    return render(request, 'home.html')

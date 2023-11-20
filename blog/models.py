@@ -4,7 +4,7 @@ from taggit.managers import TaggableManager
 from django.db import models
 from django.utils import timezone
 
-from blog.managers import PostPublishedManager
+from blog.managers import PublishedManager
 
 User = get_user_model()
 
@@ -46,7 +46,7 @@ class Post(models.Model):
     tags = TaggableManager()
 
     objects = models.Manager()
-    published = PostPublishedManager()
+    published = PublishedManager()
 
     class Meta:
         ordering = ('-created', '-updated')
@@ -57,6 +57,18 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('blog:post_detail',
                        args=[self.slug])
+
+    def likes_count(self):
+        return self.likes.count()
+
+    def dislikes_count(self):
+        return self.dislikes.count()
+
+    def is_liked_by(self, user):
+        return self.likes.filter(user=user).exists()
+
+    def is_disliked_by(self, user):
+        return self.dislikes.filter(user=user).exists()
 
 
 class PostLike(models.Model):
@@ -90,7 +102,7 @@ class Comment(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='comments')
-    body = models.CharField(max_length=255)
+    body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=True)
@@ -101,9 +113,21 @@ class Comment(models.Model):
     def __str__(self):
         return f'Comment by {self.author} - {self.body}'
 
+    def likes_count(self):
+        return self.likes.count()
+
+    def dislikes_count(self):
+        return self.dislikes.count()
+
+    def is_liked_by(self, user):
+        return self.likes.filter(user=user).exists()
+
+    def is_disliked_by(self, user):
+        return self.dislikes.filter(user=user).exists()
+
 
 class CommentLike(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_likes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='likes')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_likes')
 
     class Meta:
@@ -114,7 +138,7 @@ class CommentLike(models.Model):
 
 
 class CommentDislike(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='comment_dislikes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='dislikes')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comment_dislikes')
 
     class Meta:

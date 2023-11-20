@@ -6,7 +6,7 @@
       </a>
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="/" class="nav-link px-2 text-secondary">Home</a></li>
+        <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
         <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
         <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
         <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
@@ -18,12 +18,14 @@
       </form>
 
       <div class="text-end">
-        {% if user.is_authenticated %}
-        Hi {{ user.username }}!
-        <button type="button" class="btn btn-warning"><a href="{% url 'accounts:logout' %}">Log Out</a></button>
+        {% if request.user.is_authenticated %}
+          <span>{{ request.user }}</span>
+          <a href="{% url 'accounts:logout' %}">
+            <button type="button" class="btn btn-warning">Logout</button>
+          </a>
         {% else %}
-        <button type="button" class="btn btn-outline-light me-2"><a href="{% url 'accounts:login' %}">Login</a></button>
-        <button type="button" class="btn btn-warning"><a href="{% url 'accounts:register' %}">Register</a></button>
+          <a href="{% url 'accounts:login' %}" type="button" class="btn btn-outline-light me-2">Login</a>
+          <a href="{% url 'accounts:register' %}" type="button" class="btn btn-warning">Sign-up</a>
         {% endif %}
       </div>
     </div>

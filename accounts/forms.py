@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
+from accounts.models import Profile
+
 User = get_user_model()
 
 
@@ -28,9 +30,14 @@ class RegisterForm(UserCreationForm):
             'password2': forms.PasswordInput(),
         }
 
-    # def __init__(self, *args, **kwargs):
-    #     super(RegisterForm, self).__init__(*args, **kwargs)
-    #     for field_name, field in self.fields.items():
-    #         field.widget.attrs.update({'class': 'form-control'})
-    #
-    #     self.fields['username'].widget.attrs.update({'placeholder': 'Enter your username'})
+
+class ProfileEditForm(forms.ModelForm):
+    model = Profile
+    fields = ['user__first_name', 'user__last-name', 'gender', 'date_of_birth', 'info']
+    widgets = {
+        'user__first_name': forms.TextInput(),
+        'user__last-name':  forms.TextInput(),
+        'gender': forms.ChoiceField(),
+        'date_of_birth': forms.DateField(),
+        'info': forms.TextInput()
+    }

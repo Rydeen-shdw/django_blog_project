@@ -1,0 +1,69 @@
+{% load blog_filters %}
+
+<div class="card mb-4" id="commentLike{{ comment.pk }}">
+  <div class="card-body">
+      {% if request.user.is_superuser %}
+         <a href="" class="text-decoration-none">
+            <button class="btn-sm btn-warning ms-auto">Disabled</button>
+            <button class="btn-sm btn-success ms-auto">Enabled</button>
+        </a>
+        <a href="" class="text-decoration-none">
+          <button class="btn-sm btn-danger ms-auto">Delete</button>
+        </a>
+        <hr>
+      {% endif %}
+
+    <p class="small text-muted mb-2">{{ comment.created|timesince }}</p>
+
+      <div class="d-flex flex-row align-items-center">
+        {% if comment.active %}
+          <p>{{ comment.body }}</p>
+        {% else %}
+          {% if request.user.is_superuser %}
+            <p class="text-secondary"><i>Comment has been disabled by moderator</i></p>
+          {% endif %}
+        {% endif %} 
+      </div>
+
+    <div class="d-flex justify-content-between">
+      <div class="d-flex flex-row align-items-center">
+          <i class="fas fa-user mx-1"></i>
+          <p class="small mb-0 ms-2">@{{ comment.author.get_full_name }}</p>
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <div class="d-flex flex-row align-items-center text-primary me-3">
+          {% if comment|is_liked_by:request.user %}
+            <p class="small mb-0">Unlike</p>
+            <a href="{% url 'blog:comment_like' comment_id=comment.pk %}">
+              <i class="fa-solid fa-thumbs-up ms-2 me-2" style="margin-top: -0.16rem;"></i>
+            </a>
+          {% else %}
+            <p class="small mb-0">Like</p>
+            <a href="{% url 'blog:comment_like' comment_id=comment.pk %}">
+              <i class="fa-regular fa-thumbs-up ms-2 me-2" style="margin-top: -0.16rem;"></i>
+            </a>
+          {% endif %}
+          <p class="small mb-0">{{ comment.likes_count }}</p>
+        </div>
+
+        <div class="d-flex flex-row align-items-center text-primary">
+          {% if comment|is_disliked_by:request.user %}
+            <p class="small mb-0">Undislike</p>
+            <a href="{% url 'blog:comment_dislike' comment_id=comment.pk %}">
+              <i class="fa-solid fa-thumbs-down ms-2 me-2" style="margin-top: -0.16rem;"></i>
+            </a>
+          {% else %}
+            <p class="small mb-0">Dislike</p>
+            <a href="{% url 'blog:comment_dislike' comment_id=comment.pk %}">
+              <i class="fa-regular fa-thumbs-down ms-2 me-2" style="margin-top: -0.16rem;"></i>
+            </a>
+          {% endif %}
+          <p class="small mb-0">{{ comment.dislikes_count }}</p>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div>

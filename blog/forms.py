@@ -1,17 +1,20 @@
 from django import forms
 
-from blog import models
+from blog.models import Comment
 
 
 class CommentForm(forms.ModelForm):
     class Meta:
-        model = models.Comment
-        fields = ['body',]
+        model = Comment
+        fields = ['body']
+
         widgets = {
             'body': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': '4',
-                'placeholder': 'Write your comment here ...',
+                'placeholder': 'Share your thoughts in the comments...',
+                'rows': 4
             })
         }
 
+        labels = {
+            'body': 'Add your comment'
+        }

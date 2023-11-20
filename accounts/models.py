@@ -75,8 +75,9 @@ class AbstractToken(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        self.token = get_random_string(length=32)
-        super(AbstractToken, self).save(*args, **kwargs)
+        if not self.pk:
+            self.token = get_random_string(length=32)
+        super().save(*args, **kwargs)
 
     def verify_token(self):
         return self.created >= timezone.now() - timezone.timedelta(days=1)
@@ -96,7 +97,4 @@ class PasswordResetToken(AbstractToken):
 
     class Meta:
         verbose_name_plural = 'Password Reset Tokens'
-
-
-
 
