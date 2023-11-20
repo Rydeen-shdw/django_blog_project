@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -8,6 +9,7 @@ from django.conf import settings
 from accounts import forms
 from accounts import models
 from accounts.utils import send_activation_email
+from blog.models import Post, Follow
 
 User = get_user_model()
 
@@ -92,3 +94,43 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('accounts:login')
+
+
+def profile_view(request: HttpRequest, username: str) -> HttpResponse:
+    user = get_object_or_404(User,
+                             username=username,
+                             is_active=True)
+    posts = Post.objects.filter(author=user)
+    num_posts = posts.count()
+    context = {
+        'user': user,
+        'posts': posts,
+    }
+    return render(request, 'accounts/profile/profile.html', context)
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def profile_edit_view(request: HttpRequest, username: str) -> HttpResponse:
+    user = get_object_or_404(User,
+                             username=username,
+                             is_active=True)
+    if request.method == "POST":
+        user_form = forms.UserEditForm(instance=user, data=request.POST)
+        profile_form = forms.ProfileEditForm(instance=user.profile, data=request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile success updated')
+            return redirect('accounts:profile', username=user.username)
+        else:
+            messages.error(request, 'Ups!!!!')
+    else:
+        user_form = forms.UserEditForm(instance=user)
+        profile_form = forms.ProfileEditForm(instance=user.profile)
+
+    context = {'user': user,
+               'user_form': user_form,
+               'profile_form': profile_form
+              }
+    return render(request, 'accounts/profile/profile_edit.html', context)

@@ -31,13 +31,17 @@ class RegisterForm(UserCreationForm):
         }
 
 
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name')
+
+
 class ProfileEditForm(forms.ModelForm):
-    model = Profile
-    fields = ['user__first_name', 'user__last-name', 'gender', 'date_of_birth', 'info']
-    widgets = {
-        'user__first_name': forms.TextInput(),
-        'user__last-name':  forms.TextInput(),
-        'gender': forms.ChoiceField(),
-        'date_of_birth': forms.DateField(),
-        'info': forms.TextInput()
-    }
+    class Meta:
+        model = Profile
+        fields = ('gender', 'date_of_birth', 'info')
+        widgets = {
+            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
+            'info': forms.Textarea(attrs={'rows': 4})
+        }
