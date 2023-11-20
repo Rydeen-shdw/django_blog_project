@@ -2,6 +2,7 @@ import hashlib
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils import timezone
 
@@ -97,4 +98,3 @@ class PasswordResetToken(AbstractToken):
 
     class Meta:
         verbose_name_plural = 'Password Reset Tokens'
-

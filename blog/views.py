@@ -83,3 +83,22 @@ def comment_dislike_view(request: HttpRequest, comment_id: int) -> HttpResponse:
             like.delete()
 
     return HttpResponseRedirect(f'{comment.post.get_absolute_url()}#commentLike{comment.pk}')
+
+
+@login_required
+def comment_disable_view(request, comment_id):
+    comment = models.Comment.objects.get(pk=comment_id)
+    if comment.active:
+        comment.active=False
+    else:
+        comment.active = True
+    comment.save()
+    return HttpResponseRedirect(f'{comment.post.get_absolute_url()}#commentLike{comment.pk}')
+
+@login_required
+def comment_delete_view(request, comment_id):
+    comment = models.Comment.objects.get(pk=comment_id)
+    comment.delete()
+    return HttpResponseRedirect(f'{comment.post.get_absolute_url()}#commentLike{comment.pk}')
+
+
