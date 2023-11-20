@@ -39,6 +39,9 @@ class User(AbstractUser):
         self.username = self.username.lower()
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('accounts:profile', kwargs={'username': self.username})
+
 
 class Profile(models.Model):
     GENDER_CHOICES = (
