@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from django.urls import reverse_lazy
 
 from dotenv import load_dotenv
 
@@ -145,6 +146,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 
 AUTH_USER_MODEL = 'accounts.User'
+
+ABSOLUTE_URL_OVERRIDES = {'accounts.user': lambda u: reverse_lazy('accounts:profile', args=[u.username])}
 
 # Crispy form
 
