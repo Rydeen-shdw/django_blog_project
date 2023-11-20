@@ -147,8 +147,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-ABSOLUTE_URL_OVERRIDES = {'accounts.user': lambda u: reverse_lazy('accounts:profile', args=[u.username])}
-
 # Crispy form
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
