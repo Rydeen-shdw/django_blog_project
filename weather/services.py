@@ -30,7 +30,7 @@ def get_weather(city):
     response.raise_for_status()
     data = response.json()
     if response.status_code == 200:
-        data = parse_weather_data(data)
-        return data
+        parsed_data = parse_weather_data(data)
+        return parsed_data
     else:
         return None
