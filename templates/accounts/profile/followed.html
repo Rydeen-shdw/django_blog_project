@@ -1,0 +1,23 @@
+{% extends 'base/_base.html' %}
+
+{% block title %}
+  {{ user.get_full_name }} followed by
+{% endblock title %}
+
+{% block content %}
+
+  <div class="col">
+    <h2>{{ user.get_full_name }} followed by</h2>
+      <ul>
+        {% for follow in followings %}
+            <li><a href="{% url 'accounts:profile_detail' username=follow.followed.username %}">{{ follow.followed.get_full_name}}</a></li>
+
+      {% empty %}
+          -- no followers --
+      {% endfor %}
+      </ul>
+
+
+  </div>
+
+{% endblock content %}

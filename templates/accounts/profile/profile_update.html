@@ -1,0 +1,20 @@
+{% extends 'base/_base.html' %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+  Update profile {{ request.user.get_full_name }}
+{% endblock title %}
+
+{% block content %}
+
+  <div class="col-3">
+    <h2>Update profile {{ request.user.get_full_name }}</h2>
+
+    <form action="" method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn btn-info">Update</button>
+    </form>
+  </div>
+
+{% endblock content %}

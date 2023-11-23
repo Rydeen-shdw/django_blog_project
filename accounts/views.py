@@ -1,6 +1,7 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import authenticate, login, logout, get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.contrib.auth.forms import PasswordChangeForm
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
@@ -8,8 +9,8 @@ from django.conf import settings
 
 from accounts import forms
 from accounts import models
-from accounts.utils import send_activation_email
 from blog.models import Post, Follow
+from accounts.utils import send_activation_email
 
 User = get_user_model()
 
@@ -50,7 +51,7 @@ def activate_account_view(request, username, token):
         user.save()
 
         messages.success(request, 'Activation complete.')
-        return redirect('accounts:profile_edit')
+        return redirect('accounts:login')
 
     messages.error(request, 'Token expired')
     return redirect('accounts:test')
@@ -78,7 +79,8 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect('blog:post_list')
+                next_url = request.GET.get('next', 'blog:post_list')
+                return redirect(next_url)
             else:
                 messages.error(request, 'Invalid email or password')
                 return redirect('accounts:login')
@@ -90,47 +92,128 @@ def login_view(request):
     return render(request, 'accounts/login.html', {'form': form})
 
 
+@require_http_methods(["GET"])
 @login_required
 def logout_view(request):
     logout(request)
     return redirect('accounts:login')
 
 
-def profile_view(request: HttpRequest, username: str) -> HttpResponse:
-    user = get_object_or_404(User,
-                             username=username,
-                             is_active=True)
-    posts = Post.objects.filter(author=user)
-    num_posts = posts.count()
+@require_http_methods(["GET", "POST"])
+@login_required
+def change_password_view(request, username):
+    user = get_object_or_404(User, username=username)
+
+    if request.user != user:
+        messages.error(request, f'You don\'t have permission to change password for user {username}')
+        return redirect('accounts:profile_detail', username=username)
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user, request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+
+            messages.success(request, 'Your password was successfully updated.')
+            return redirect('accounts:profile_detail', username=username)
+        else:
+            return render(request, 'accounts/change_password.html', {'form': form})
+
+    form = PasswordChangeForm(user)
+    return render(request, 'accounts/change_password.html', {'form': form})
+
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def profile_create_view(request):
+    if hasattr(request.user, 'profile'):
+        messages.info(request, 'You already have profile')
+        return redirect('blog:post_list')
+
+    if request.method == 'POST':
+        form = forms.ProfileForm(request.POST)
+
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+
+            return redirect('blog:post_list')
+        else:
+            return render(request, 'accounts/profile/profile_create.html', {'form': form})
+
+    form = forms.ProfileForm()
+    return render(request, 'accounts/profile/profile_create.html', {'form': form})
+
+
+@require_http_methods(["GET"])
+def profile_detail_view(request, username):
+    profile = get_object_or_404(models.Profile, user__username=username)
+    posts = Post.published.filter(author=profile.user)[:4]
     context = {
-        'user': user,
-        'posts': posts,
+        'profile': profile,
+        'posts': posts
     }
-    return render(request, 'accounts/profile/profile.html', context)
+    return render(request, 'accounts/profile/profile_detail.html', context)
+
+
+@require_http_methods(["GET", "POST"])
+@login_required
+def profile_update_view(request, username):
+    profile = get_object_or_404(models.Profile, user__username=username)
+
+    if request.user != profile.user:
+        messages.error(request, 'You don\'t have permission to edit this profile.')
+        return redirect('accounts:profile_detail', username=username)
+
+    if request.method == 'POST':
+        form = forms.ProfileForm(instance=profile, data=request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, 'Profile updated')
+            return redirect('accounts:profile_detail', username=username)
+        else:
+            return render(request, 'accounts/profile/profile_update.html', {'form': form})
+
+    form = forms.ProfileForm(instance=profile)
+    return render(request, 'accounts/profile/profile_update.html', {'form': form})
 
 
 @login_required
-@require_http_methods(["GET", "POST"])
-def profile_edit_view(request: HttpRequest, username: str) -> HttpResponse:
-    user = get_object_or_404(User,
-                             username=username,
-                             is_active=True)
-    if request.method == "POST":
-        user_form = forms.UserEditForm(instance=user, data=request.POST)
-        profile_form = forms.ProfileEditForm(instance=user.profile, data=request.POST)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, 'Your profile success updated')
-            return redirect('accounts:profile', username=user.username)
-        else:
-            messages.error(request, 'Ups!!!!')
-    else:
-        user_form = forms.UserEditForm(instance=user)
-        profile_form = forms.ProfileEditForm(instance=user.profile)
+def user_follow_view(request, username):
+    user = get_object_or_404(User, username=username)
+    follow = Follow(follower=request.user, followed=user)
+    follow.save()
+    messages.success(request, f'For now you follow {user.get_full_name()}')
+    return redirect('accounts:profile_detail', username=username)
 
-    context = {'user': user,
-               'user_form': user_form,
-               'profile_form': profile_form
-              }
-    return render(request, 'accounts/profile/profile_edit.html', context)
+
+@login_required
+def user_unfollow_view(request, username):
+    user = get_object_or_404(User, username=username)
+    existing_follow = Follow.objects.filter(follower=request.user, followed=user).first()
+    if existing_follow:
+        existing_follow.delete()
+        messages.success(request, f'You have unfollowed {user.get_full_name()}')
+    else:
+        messages.warning(request, f'You are not following {user.get_full_name()}')
+    return redirect('accounts:profile_detail', username=username)
+
+
+def user_followers_view(request, username):
+    user = get_object_or_404(User, username=username)
+    followers = user.followers.filter(followed=user.id)
+    return render(request, 'accounts/profile/followers.html', {'user': user,
+                                                               'followers': followers})
+
+
+def user_following_view(request, username):
+    user = get_object_or_404(User, username=username)
+    followings = user.following.filter(follower=user.id)
+    return render(request, 'accounts/profile/followed.html', {'user': user,
+                                                              'followings': followings})
+
+

@@ -2,7 +2,6 @@ import hashlib
 
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.urls import reverse
 from django.utils.crypto import get_random_string
 from django.utils import timezone
 
@@ -39,9 +38,6 @@ class User(AbstractUser):
         self.username = self.username.lower()
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return reverse('accounts:profile', kwargs={'username': self.username})
-
 
 class Profile(models.Model):
     GENDER_CHOICES = (
@@ -52,6 +48,7 @@ class Profile(models.Model):
     avatar = models.URLField(max_length=255, blank=True)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES)
     date_of_birth = models.DateField(validators=[validate_birth_date])
+    bio = models.TextField()
     info = models.CharField(max_length=255)
 
     def __str__(self):
@@ -101,3 +98,7 @@ class PasswordResetToken(AbstractToken):
 
     class Meta:
         verbose_name_plural = 'Password Reset Tokens'
+
+
+
+

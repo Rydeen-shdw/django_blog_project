@@ -7,6 +7,10 @@ from accounts.models import Profile
 User = get_user_model()
 
 
+class DateInputCustom(forms.DateInput):
+    input_type = 'date'
+
+
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput())
@@ -31,17 +35,36 @@ class RegisterForm(UserCreationForm):
         }
 
 
-class UserEditForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name')
-
-
-class ProfileEditForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('gender', 'date_of_birth', 'info')
-        widgets = {
-            'date_of_birth': forms.DateInput(attrs={'type': 'date'}),
-            'info': forms.Textarea(attrs={'rows': 4})
+        fields = ['gender', 'date_of_birth', 'avatar', 'bio', 'info']
+
+        labels = {
+            'date_of_birth': 'Date of your Birth',
+            'avatar': 'Avatar URL'
         }
+
+        placeholders = {
+            'avatar': 'Left empty to use gravatar',
+            'bio': 'Write a short biography',
+            'info': 'Enter some additional information'
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'placeholder': self.Meta.placeholders.get(field_name, '')
+            })
+        self.fields['date_of_birth'].widget = DateInputCustom()
+
+    # def clean_date_of_birth(self):
+    #     data = self.cleaned_data['date_of_birth']
+    #     try:
+    #         validate_birth_date(data)
+    #     except ValidationError as exp:
+    #         self.add_error('date_of_birth', str(exp))
+    #     return data
+
+

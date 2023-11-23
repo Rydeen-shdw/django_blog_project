@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 
@@ -20,7 +20,8 @@ def post_detail_view(request: HttpRequest, post_slug: str) -> HttpResponse:
         'post': post,
         'form': form
     }
-    return render(request, 'blog/post/post_detail.html', contex)
+    return render(request, 'blog/post/post_detail.html', contex)\
+
 
 @login_required
 @require_http_methods(["POST",])
@@ -36,12 +37,14 @@ def post_comment_view(request, slug):
         comment.post = post
         comment.author = user
         comment.save()
+        messages.success(request,'Your comment add')
     return HttpResponseRedirect(f'{post.get_absolute_url()}#postFooter')
 
 
 @login_required
 def post_like_view(request: HttpRequest, post_id: int) -> HttpResponse:
     post = get_object_or_404(models.Post, pk=post_id)
+
     if post.is_liked_by(request.user):
         like = post.likes.get(user=request.user)
         like.delete()
@@ -50,6 +53,7 @@ def post_like_view(request: HttpRequest, post_id: int) -> HttpResponse:
         if post.is_disliked_by(request.user):
             dislike = post.dislikes.get(user=request.user)
             dislike.delete()
+
     return HttpResponseRedirect(f'{post.get_absolute_url()}#postFooter')
 
 
@@ -101,7 +105,6 @@ def comment_dislike_view(request: HttpRequest, comment_id: int) -> HttpResponse:
     return HttpResponseRedirect(f'{comment.post.get_absolute_url()}#commentLike{comment.pk}')
 
 
-@login_required
 def comment_disable_view(request, comment_id):
     comment = models.Comment.objects.get(pk=comment_id)
     if comment.active:
@@ -117,5 +120,3 @@ def comment_delete_view(request, comment_id):
     comment = models.Comment.objects.get(pk=comment_id)
     comment.delete()
     return HttpResponseRedirect(f'{comment.post.get_absolute_url()}#commentLike{comment.pk}')
-
-

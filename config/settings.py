@@ -64,6 +64,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # user middleware
+    'accounts.middleware.ProfileCompletionMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -156,8 +159,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # Email settings
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = str(os.getenv('EMAIL_HOST'))
-EMAIL_USE_SSL = True
-EMAIL_PORT = 465
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TSL = True
+EMAIL_PORT = 587
 EMAIL_HOST_USER = str(os.getenv('EMAIL_HOST_USER'))
 EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))

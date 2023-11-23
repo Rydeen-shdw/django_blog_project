@@ -19,7 +19,7 @@
 
       <div class="text-end">
         {% if request.user.is_authenticated %}
-            <span><a href="{% url 'accounts:profile' username=request.user.username %}">{{ request.user }}</a></span>
+            <span><a href="{% url 'accounts:profile_detail' username=request.user.username %}">{{ request.user }}</a></span>
           <a href="{% url 'accounts:logout' %}">
             <button type="button" class="btn btn-warning">Logout</button>
           </a>
