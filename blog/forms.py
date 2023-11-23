@@ -18,3 +18,4 @@ class CommentForm(forms.ModelForm):
         labels = {
             'body': 'Add your comment'
         }
+

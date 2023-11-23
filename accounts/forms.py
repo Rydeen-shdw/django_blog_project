@@ -58,13 +58,3 @@ class ProfileForm(forms.ModelForm):
                 'placeholder': self.Meta.placeholders.get(field_name, '')
             })
         self.fields['date_of_birth'].widget = DateInputCustom()
-
-    # def clean_date_of_birth(self):
-    #     data = self.cleaned_data['date_of_birth']
-    #     try:
-    #         validate_birth_date(data)
-    #     except ValidationError as exp:
-    #         self.add_error('date_of_birth', str(exp))
-    #     return data
-
-
