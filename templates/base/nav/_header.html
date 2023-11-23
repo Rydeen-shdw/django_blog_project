@@ -19,7 +19,14 @@
 
       <div class="text-end">
         {% if request.user.is_authenticated %}
-            <span><a href="{% url 'accounts:profile_detail' username=request.user.username %}">{{ request.user }}</a></span>
+          <a class="text-decoration-none text-white me-3"
+             href="{% url 'accounts:profile_detail' username=request.user %}">
+          {% if request.user.profile %}
+            <img src="{{ request.user.profile.avatar }}" alt="" width="25" height="25">
+          {% endif %}
+          <span>{{ request.user }}</span>
+          </a>
+
           <a href="{% url 'accounts:logout' %}">
             <button type="button" class="btn btn-warning">Logout</button>
           </a>
