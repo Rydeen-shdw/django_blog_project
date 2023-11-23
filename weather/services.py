@@ -8,7 +8,8 @@ def parse_weather_data(data):
     data = {
         'temp': data["main"]["temp"],
         'icon': data["weather"][0]["icon"],
-        'weather': data["weather"][0]["description"],
+        'weather': data["weather"][0]["main"],
+        'weather_description': data["weather"][0]["description"],
         'wind_speed': data["wind"]["speed"] * 3.6,
         'humidity': data["main"]["humidity"],
         'time': data["timezone"],
