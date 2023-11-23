@@ -53,7 +53,8 @@ INSTALLED_APPS = [
 
     # user apps
     'accounts.apps.AccountsConfig',
-    'blog.apps.BlogConfig'
+    'blog.apps.BlogConfig',
+    'weather.apps.WeatherConfig'
 ]
 
 MIDDLEWARE = [
@@ -164,3 +165,7 @@ EMAIL_USE_TSL = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = str(os.getenv('EMAIL_HOST_USER'))
 EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
+
+# Weather settings
+
+OPENWEATHERMAP_API_KEY = str(os.getenv('OPENWEATHERMAP_API_KEY'))
