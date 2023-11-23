@@ -40,4 +40,3 @@ def weather_forecast_view(request, city):
     except Exception as e:
         messages.error(request, f"An error occurred")
         return redirect('weather:weather_city')
-

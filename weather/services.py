@@ -17,8 +17,8 @@ def parse_weather_data(data):
     return data
 
 
-def get_weather_data(city):
-    connect_timeout = 10
+def get_weather(city):
+    connect_timeout = 5
     key = settings.OPENWEATHERMAP_API_KEY
     url = 'https://api.openweathermap.org/data/2.5/weather'
     params = {
@@ -28,13 +28,9 @@ def get_weather_data(city):
     }
     response = requests.get(url, params=params, timeout=connect_timeout)
     response.raise_for_status()
+    data = response.json()
     if response.status_code == 200:
-        data = response.json()
-        parsed_data = parse_weather_data(data)
-        return parsed_data
+        data = parse_weather_data(data)
+        return data
     else:
         return None
-
-
-
-
