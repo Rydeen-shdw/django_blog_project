@@ -1,42 +1,44 @@
-from datetime import datetime
-from requests.exceptions import HTTPError
+import logging
 
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
+from django.views import View
+from django.conf import settings
 from django.contrib import messages
 
-from weather import forms
-from weather import services
+from weather.forms import CityWeatherForm
+from weather.services.weather_services import OpenWeatherTodayService
+from weather.exceptions import CityNotFoundError, ServerInvalidResponseError, ServerReturnInvalidStatusCode
+
+logger = logging.getLogger('weather')
 
 
-@require_http_methods(['POST', "GET"])
-def get_city_name_view(request):
-    if request.method == 'POST':
-        form = forms.CityForm(request.POST)
+class WeatherCityView(View):
+    def get(self, request):
+        form = CityWeatherForm()
+        return render(request, 'weather/today.html', {'form': form})
+
+    def post(self, request):
+        form = CityWeatherForm(request.POST)
+
         if form.is_valid():
-            city = form.cleaned_data['city_name']
-            return redirect('weather:weather_forecast', city=city)
-    else:
-        form = forms.CityForm()
+            api_key = settings.WEATHER_API_KEY
+            city = form.cleaned_data['city']
 
-    return render(request, 'weather/city_search.html', {'form': form})
+            weather_service = OpenWeatherTodayService(api_key)
+
+            try:
+                city_weather = weather_service.get_weather(city)
+            except CityNotFoundError as exception:
+                messages.warning(request, str(exception))
+                return redirect('weather:today')
+            except (ServerInvalidResponseError, ServerReturnInvalidStatusCode) as exception:
+                messages.error(request, 'External weather service error')
+                logger.error(str(exception))
+                return redirect('weather:today')
+            return render(request, 'weather/today.html', {'form': form, 'weather': city_weather})
+
+        return render(request, 'weather/today.html', {'form': form})
 
 
-def weather_forecast_view(request, city):
-    time_now = datetime.now()
-    current_time = time_now.strftime("%H:%M")
-    try:
-        data = services.get_weather(city=city)
-        context = {
-            'city': city,
-            'weather_data': data,
-            'current_time': current_time
-        }
-        return render(request, 'weather/weather_detail.html', context)
-    except HTTPError as err404:
-        if err404.response.status_code == 404:
-            messages.error(request, f"Weather data for {city} not found.")
-            return redirect('weather:weather_city')
-    except Exception as e:
-        messages.error(request, f"An error occurred")
-        return redirect('weather:weather_city')
+
+
