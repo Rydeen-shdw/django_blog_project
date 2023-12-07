@@ -168,4 +168,4 @@ EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
 
 # Weather settings
 
-OPENWEATHERMAP_API_KEY = str(os.getenv('OPENWEATHERMAP_API_KEY'))
+WEATHER_API_KEY = str(os.getenv('WEATHER_API_KEY'))
