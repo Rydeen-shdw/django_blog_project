@@ -1,0 +1,40 @@
+{% extends 'base/_base.html' %}
+{% load crispy_forms_filters %}
+
+{% block title %}
+    detail {{ city.name }}
+{% endblock title %}
+
+{% block content %}
+    <section>
+        <div class="container">
+            <h1 class="text-center">{{ user_city.name}} </h1>
+            <div class="row">
+                <div class="col-12"><img src="{{ user_city.image}}" class="img-fluid mx-auto d-block mb-3" alt="{{ user_city.name}} image"></div>
+            
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h6>{{ user_city.cities.name }}</h6>
+                <span>Latitude {{user_city.lat }}</span>
+                <span>Longitude {{user_city.lon }}</span>
+                </div>
+            </div>
+        
+            <div class="row">
+                <div class="col-12">
+                {% autoescape off %}
+                {{ user_city.description}},
+                {% endautoescape %} 
+                </div>
+            </div>   
+        </div>
+
+    </div>
+    </section>
+
+{% endblock content %}
