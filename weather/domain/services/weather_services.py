@@ -1,15 +1,9 @@
 import requests
 from datetime import datetime
-from abc import ABCMeta, abstractmethod
 
+from weather.domain.interfaces.service_interfaces import WeatherTodayServiceInterface
 from weather.exceptions import CityNotFoundError, ServerInvalidResponseError, ServerReturnInvalidStatusCode
 from weather.dto.weather_dto import CoordinatesDTO, WeatherTimeInfoDTO, WeatherTodayDTO
-
-
-class WeatherTodayServiceInterface(metaclass=ABCMeta):
-    @abstractmethod
-    def get_weather(self, city: str):
-        pass
 
 
 class OpenWeatherTodayService(WeatherTodayServiceInterface):

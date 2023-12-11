@@ -2,6 +2,10 @@ class CityNotFoundError(BaseException):
     pass
 
 
+class CountryNotFoundError(BaseException):
+    pass
+
+
 class PageNotFoundError(BaseException):
     pass
 
@@ -15,4 +19,16 @@ class ServerReturnInvalidStatusCode(BaseException):
 
 
 class ServerConnectionError(BaseException):
+    pass
+
+
+class CountryServiceUnavailable(BaseException):
+    pass
+
+
+class WikiServiceUnavailable(BaseException):
+    pass
+
+
+class UserCityAlreadyExist(BaseException):
     pass

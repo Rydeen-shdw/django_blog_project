@@ -1,11 +1,12 @@
 import requests
 
+from weather.domain.interfaces.service_interfaces import WikiServiceInterface
 from weather.dto.wiki_dto import WikiServiceDTO
 from weather.exceptions import ServerConnectionError, ServerInvalidResponseError, ServerReturnInvalidStatusCode, \
     PageNotFoundError
 
 
-class WikiService:
+class WikiService(WikiServiceInterface):
     _WIKI_API_ROOT_URL = 'http://en.wikipedia.org/w/api.php?action=query&' \
                          'titles={query}&prop=extracts|pageimages&format=json&pithumbsize=1000'
 
@@ -35,7 +36,6 @@ class WikiService:
             raise ServerReturnInvalidStatusCode(f'WikiPedia return invalid status code, status code: {status_code}')
 
         page = response_json['query']['pages']
-        print(page)
         if '-1' in page:
             raise PageNotFoundError('WikiPedia page not found')
 

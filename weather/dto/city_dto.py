@@ -1,5 +1,4 @@
 from typing import NamedTuple
-from datetime import datetime
 
 
 class CityDTO(NamedTuple):
@@ -21,19 +20,3 @@ class CreateCityDTO(NamedTuple):
     lat: float
     lon: float
     country_id: int
-
-
-
-class CreateUserCityDTO(NamedTuple):
-    user_id: int
-    city_id: int
-
-
-class UserCityDTO(NamedTuple):
-    id: int
-    user_id: int
-    city_id: int
-    create_at: datetime
-
-
-

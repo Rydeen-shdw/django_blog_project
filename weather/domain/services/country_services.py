@@ -1,10 +1,11 @@
 import requests
 
+from weather.domain.interfaces.service_interfaces import CountriesServiceInterface
 from weather.dto.country_dto import CountryServiceDTO
 from weather.exceptions import ServerConnectionError, ServerInvalidResponseError, ServerReturnInvalidStatusCode
 
 
-class RestCountriesService:
+class RestCountriesService(CountriesServiceInterface):
     _COUNTRIES_API_ROOT_URL = 'https://restcountries.com/v3.1/alpha/{code}'
 
     def get_country_by_code(self, code: str) -> CountryServiceDTO:
@@ -27,7 +28,7 @@ class RestCountriesService:
 
     def _validate_response_or_raise(self, response_json: dict, status_code: int) -> None:
         if response_json is None:
-            raise ServerInvalidResponseError(f'OpenWeather internal server error, status code: {status_code}')
+            raise ServerInvalidResponseError(f'RestCountries internal server error, status code: {status_code}')
 
         if status_code != 200:
             raise ServerReturnInvalidStatusCode(f'RestCountries return invalid status code, status code: {status_code}')
@@ -45,3 +46,8 @@ class RestCountriesService:
         )
         return country_dto
 
+
+if __name__ == '__main__':
+    country_service = RestCountriesService()
+    country = country_service.get_country_by_code('UA')
+    print(country)

@@ -6,15 +6,15 @@ from django.views import View
 from django.conf import settings
 from django.contrib import messages
 
-from weather.dto.city_dto import CreateCityDTO, CreateUserCityDTO
-from weather.dto.country_dto import CreateCountryDTO
-from weather.forms import CityWeatherForm, UserCityCreateForm
-from weather.services.country_services import RestCountriesService
-from weather.services.weather_services import OpenWeatherTodayService
-from weather.exceptions import CityNotFoundError, ServerInvalidResponseError, ServerReturnInvalidStatusCode
-from weather.repositories import CountryDjangoORMRepository, CityDjangoORMRepository, UserCityDjangoORMRepository
-from weather.services.wiki_service import WikiService
-from weather.facade import WeatherFacade
+from weather.forms import CityWeatherForm
+from weather.domain.services.weather_services import OpenWeatherTodayService
+from weather.exceptions import (
+    CityNotFoundError,
+    ServerInvalidResponseError,
+    ServerReturnInvalidStatusCode,
+    CountryServiceUnavailable,
+    WikiServiceUnavailable, UserCityAlreadyExist)
+from config.containers import FacadeContainer
 
 logger = logging.getLogger('weather')
 
@@ -23,6 +23,7 @@ class WeatherCityView(View):
     def get(self, request):
         form = CityWeatherForm()
         return render(request, 'weather/today.html', {'form': form})
+
     def post(self, request):
         form = CityWeatherForm(request.POST)
 
@@ -48,34 +49,23 @@ class WeatherCityView(View):
 
 class UserCityCreateView(LoginRequiredMixin, View):
     def post(self, request):
-        form = UserCityCreateForm(request.POST)
+        city_name = request.POST.get('city')
+        country_code = request.POST.get('country_code')
+        lat = float(request.POST.get('lat'))
+        lon = float(request.POST.get('lon'))
 
-        if form.is_valid():
-            city_name = request.POST.get('city')
-            country_code = request.POST.get('country_code')
-            lat = float(request.POST.get('lat'))
-            lon = float(request.POST.get('lon'))
+        city_country_facade = FacadeContainer.city_country_facade()
 
-            facade = WeatherFacade()
+        try:
+            city_country_facade.add_city_to_user_favorites(request.user.pk, country_code, city_name, lat, lon)
+        except UserCityAlreadyExist as exception:
+            messages.error(request, str(exception))
+            return redirect('blog:post_list')
+        except (CountryServiceUnavailable, WikiServiceUnavailable) as exception:
+            logger.error(str(exception))
+            messages.error(request, 'Something went wrong, try it later')
+            return redirect('blog:post_list')
 
-            country = facade.create_or_get_country(country_code)
-            city = facade.create_or_get_city(city_name, country, lat, lon)
+        messages.success(request, f'City {city_name} added to user: {request.user}, favorites')
+        return redirect('blog:post_list')
 
-            user = request.user
-            return facade.add_user_city(request,user, city)
-        else:
-            messages.error(request, 'Invalid data received')
-            return redirect('weather:today')
-
-
-class UserCityListView(LoginRequiredMixin, View):
-    def get(self, request):
-        user_city_repository = UserCityDjangoORMRepository()
-        user_cities = user_city_repository.get_user_cities(request.user)
-        return render(request, 'weather/user_cities_list.html', {'cities': user_cities})
-
-class UserCityDetailView(LoginRequiredMixin, View):
-    def get(self, request, slug):
-        user_city_repository = UserCityDjangoORMRepository()
-        user_city = user_city_repository.get_user_city_by_slug(slug)
-        return render(request, 'weather/user_city_detail.html', {'user_city': user_city})

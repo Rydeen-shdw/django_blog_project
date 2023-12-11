@@ -1,12 +1,13 @@
-from typing import Optional, List
+from typing import Optional
 
-from weather.dto.city_dto import CityDTO, CreateCityDTO, CreateUserCityDTO, UserCityDTO
+from weather.domain.interfaces.repository_interfaces import CountryRepositoryInterface, CityRepositoryInterface, \
+    UserCityRepositoryInterface
+from weather.dto.city_dto import CityDTO, CreateCityDTO
 from weather.dto.country_dto import CountryDTO, CreateCountryDTO
 from weather.models import City, Country, UserCity
 
 
-
-class CountryDjangoORMRepository:
+class CountryDjangoORMRepository(CountryRepositoryInterface):
     def get_country_by_code(self, country_code: str) -> Optional[CountryDTO]:
         country = Country.objects.filter(code=country_code).first()
         if not country:
@@ -31,7 +32,7 @@ class CountryDjangoORMRepository:
         return country_dto
 
 
-class CityDjangoORMRepository:
+class CityDjangoORMRepository(CityRepositoryInterface):
     def get_city_by_name(self, city_name: str) -> Optional[CityDTO]:
         city = City.objects.filter(name=city_name).first()
         if not city:
@@ -56,46 +57,11 @@ class CityDjangoORMRepository:
         return city_dto
 
 
+class UserCityDjangoORMRepository(UserCityRepositoryInterface):
+    def is_user_city_exist(self, user_id: int, city_id: int) -> bool:
+        user_city = UserCity.objects.filter(user_id=user_id, city_id=city_id).exists()
+        return user_city
 
-class UserCityDjangoORMRepository:
-    def get_user_city(self, user, city) -> Optional[UserCityDTO]:
-        user_city = user.cities.filter(city=city).first()
-        if not user_city:
-            return None
-        return self._map_model_to_dto(user_city)
-
-    def create_user_city(self, new_user_city_dto: CreateUserCityDTO) -> UserCityDTO:
-        user_city = UserCity.objects.create(user_id=new_user_city_dto.user_id, city_id=new_user_city_dto.city_id)
-        return self._map_model_to_dto(user_city)
-
-    def get_user_cities(self, user) -> list[CityDTO]:
-        user_cities = user.cities.all()
-        return [self._map_city_model_to_dto(user_city.city) for user_city in user_cities]
-
-    def get_user_city_by_slug(self, slug) -> Optional[CityDTO]:
-        user_city = City.objects.get(slug=slug)
-        if not user_city:
-            return None
-        return self._map_city_model_to_dto(user_city)
-
-    def _map_model_to_dto(self, user_city) -> UserCityDTO:
-        return UserCityDTO(
-            id=user_city.user.id,
-            user_id=user_city.user_id,
-            city_id=user_city.city_id,
-            create_at=user_city.create_at
-        )
-
-    def _map_city_model_to_dto(self, city) -> CityDTO:
-        return CityDTO(
-            id=city.pk,
-            name=city.name,
-            slug=city.slug,
-            description=city.description,
-            image=city.image,
-            lat=city.lat,
-            lon=city.lon,
-            country_id=city.country.pk
-        )
-
+    def create_user_city(self, user_id: int, city_id: int) -> None:
+        UserCity.objects.create(user_id=user_id, city_id=city_id)
 
