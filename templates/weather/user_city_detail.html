@@ -19,22 +19,24 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <h6>{{ user_city.cities.name }}</h6>
-                <span>Latitude {{user_city.lat }}</span>
-                <span>Longitude {{user_city.lon }}</span>
+                    <h6>{{ country.name }}</h6>
+                    <span>Latitude {{user_city.lat }}</span>
+                    <span>Longitude {{user_city.lon }}</span>
+                <div>
+
+                </div>    
                 </div>
             </div>
         
             <div class="row">
                 <div class="col-12">
                 {% autoescape off %}
-                {{ user_city.description}},
+                {{ user_city.description}}
                 {% endautoescape %} 
                 </div>
             </div>   
         </div>
-
-    </div>
+    
     </section>
 
 {% endblock content %}
