@@ -47,8 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # third part apps
-    "crispy_forms",
-    "crispy_bootstrap5",
+    'crispy_forms',
+    'crispy_bootstrap5',
+    'debug_toolbar',
     'taggit',
 
     # user apps
@@ -68,7 +69,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     # user middleware
-    'accounts.middleware.ProfileCompletionMiddleware'
+    'accounts.middleware.ProfileCompletionMiddleware',
+
+    # third part middleware
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -170,3 +174,8 @@ EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
 # Weather settings
 
 WEATHER_API_KEY = str(os.getenv('WEATHER_API_KEY'))
+
+# Debug Toolbar
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
