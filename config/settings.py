@@ -35,7 +35,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     # third part apps
     'crispy_forms',
     'crispy_bootstrap5',
+    'rest_framework',
     'debug_toolbar',
     'taggit',
 
@@ -68,11 +71,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    # third part middleware
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    
     # user middleware
     'accounts.middleware.ProfileCompletionMiddleware',
-
-    # third part middleware
-    'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -163,19 +166,14 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Email settings
-
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_DOMAIN = str(os.getenv('EMAIL_DOMAIN'))
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TSL = True
 EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 EMAIL_HOST_USER = str(os.getenv('EMAIL_HOST_USER'))
 EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
 
 # Weather settings
 
 WEATHER_API_KEY = str(os.getenv('WEATHER_API_KEY'))
-
-# Debug Toolbar
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
