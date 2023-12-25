@@ -32,3 +32,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.is_active = False
         user.save()
         return user
+
+
+class ActivateUserSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    token = serializers.CharField()

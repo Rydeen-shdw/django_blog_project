@@ -8,6 +8,6 @@ app_name = 'api'
 urlpatterns = [
     # movies
     path('movies/movies/', movies_views.MovieListAPIView.as_view(), name='movies_list'),
-    path('accounts/create/', accounts_views.UserCreatePIView.as_view(), name='register'),
-    path('accounts/activate/<str:token>/', accounts_views.ActivateUserAPIView.as_view(), name='activate')
+    path('accounts/create/', accounts_views.UserCreateAPIView.as_view(), name='register'),
+    path('accounts/activate/', accounts_views.ActivateUserAPIView.as_view(),name='activate')
 ]
