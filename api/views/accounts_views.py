@@ -11,7 +11,6 @@ from api.serializers.accounts_serializers import UserCreateSerializer, ActivateU
 from api.utils import send_activation_api_email
 from config import settings
 
-from accounts import models
 from accounts.models import ActivateToken
 
 User = get_user_model()
